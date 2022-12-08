@@ -1,0 +1,14 @@
+{
+  "compilerOptions": {
+    "target": "es2016",                                  
+    "module": "commonjs",                                
+    "esModuleInterop": true,
+    "moduleResolution":"node",                            
+    "forceConsistentCasingInFileNames": true,          
+    "strict": true,                                    
+    "skipLibCheck": true,
+    "sourceMap": false,
+    "preserveConstEnums": true
+  },
+  "exclude": ["node_modules"]
+}
