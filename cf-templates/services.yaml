@@ -1,0 +1,36 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: Sample SAM Template for test-app
+
+Parameters:
+  StageName:
+    Type: String
+    Default: dev
+  ServiceName:
+    Type: String
+    Default: HelloWorldService
+  DomainName:
+    Type: String
+  Version:
+    Type: String
+    Default: v1
+
+Resources:
+  AccessLogGroup:
+    Type: AWS::Serverless::Application
+    Properties:
+      Location: log.yaml
+      Parameters:
+        StageName: !Ref StageName
+        ServiceName: !Ref ServiceName
+  HelloWorldLambda:
+    DependsOn:
+      - AccessLogGroup
+    Type: AWS::Serverless::Application
+    Properties:
+      Location: lambda_hello_world.yaml
+      Parameters:
+        StageName: !Ref StageName
+        ServiceName: !Ref ServiceName
+        DomainName: !Ref DomainName
+        Version: !Ref Version

@@ -1,0 +1,25 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: Sample SAM Template for access log
+
+Parameters:
+  StageName:
+    Type: String
+    Default: dev
+  ServiceName:
+    Type: String
+    Default: HelloWorldService
+
+Resources:
+  AccessLogs:
+    Type: AWS::Logs::LogGroup
+    Properties:
+      LogGroupName: !Sub "${ServiceName}-${StageName}-AccessLogs"
+      RetentionInDays: 3
+
+Outputs:
+  AccessLogsARN:
+    Description: "Access log stetting ARN"
+    Value: !GetAtt AccessLogs.Arn
+    Export:
+      Name: !Sub "${ServiceName}-${StageName}-AccessLogs"

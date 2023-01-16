@@ -1,0 +1,173 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: Template for the hello world lambda
+
+Parameters:
+  StageName:
+    Type: String
+  ServiceName:
+    Type: String
+  DomainName:
+    Type: String
+  Version:
+    Type: String
+  Path:
+    Type: String
+    Default: "hello"
+
+Globals:
+  Api:
+    # Allows www.example.com to call these APIs
+    # SAM will automatically add AllowMethods with a list of methods for this API
+    # Cors: "'https://www.www.example.com'"
+    # API Gateway regional endpoints
+    EndpointConfiguration: REGIONAL
+    # Logging, Metrics, Throttling, and all other Stage settings
+    #    MethodSettings: [{
+    #      # Turn on Info logging
+    #      "LoggingLevel": "INFO",
+    #      # Enable Metrics
+    #      "MetricsEnabled": True,
+    #      # Trace-level Logging
+    #      "DataTraceEnabled": True,
+    #      # On all Paths & methods
+    #      "ResourcePath": "/*",
+    #      "HttpMethod": "*",
+    #    }]
+    ## Access Logging setting
+#    AccessLogSetting:
+#      DestinationArn: !ImportValue {"Fn::Sub": "${ServiceName}-${StageName}-AccessLog"}
+#      Format: $context.identity.sourceIp - - [$context.requestTime] "$context.routeKey $context.protocol" $context.status $context.responseLength $context.requestId - $context.authorizer.message
+  Function:
+    Timeout: 240
+    MemorySize: 1024
+    Architectures:
+      - x86_64
+
+Resources:
+    # This is a Lambda function config associated with the source code: app.js
+    getAllItemsFunction:
+      Type: AWS::Serverless::Function
+      Properties:
+        PackageType: Image
+        Description: A simple example includes a HTTP get method to get all items
+        Events:
+          Api:
+            Type: Api
+            Properties:
+              Path: /
+              Method: GET
+      Metadata:
+        DockerTag: nodejs18.x-v1
+        DockerContext: ../src/hello-world
+        Dockerfile: Dockerfile
+        BuildMethod: esbuild
+        BuildProperties:
+          Minify: true
+          Target: "es2020"
+          Sourcemap: true
+          EntryPoints:
+            - app.ts
+    # Each Lambda function is defined by properties:
+    # https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#awsserverlessfunction
+
+    # This is a Lambda function config associated with the source code: get-by-id.js
+    getByIdFunction:
+      Type: AWS::Serverless::Function
+      Properties:
+        PackageType: Image
+        Description: A simple example includes a HTTP get method to get one item by id.
+        Events:
+          Api:
+            Type: Api
+            Properties:
+              Path: /{id}
+              Method: GET
+      Metadata:
+        DockerTag: nodejs18.x-v1
+        DockerContext: ../src/hello-world
+        Dockerfile: Dockerfile
+        BuildMethod: esbuild
+        BuildProperties:
+          Minify: true
+          Target: "es2020"
+          Sourcemap: true
+          EntryPoints:
+            - app.ts
+    # Each Lambda function is defined by properties:
+    # https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#awsserverlessfunction
+
+    # This is a Lambda function config associated with the source code: app.js
+    putItemFunction:
+      Type: AWS::Serverless::Function
+      Properties:
+        PackageType: Image
+        Description: A simple example includes a HTTP post method to add one item.
+        Events:
+          Api:
+            Type: Api
+            Properties:
+              Path: /
+              Method: POST
+      Metadata:
+        DockerTag: nodejs18.x-v1
+        DockerContext: ../src/hello-world
+        Dockerfile: Dockerfile
+        BuildMethod: esbuild
+        BuildProperties:
+          Minify: true
+          Target: "es2020"
+          Sourcemap: true
+          EntryPoints:
+            - app.ts
+
+    deleteItemFunction:
+      Type: AWS::Serverless::Function
+      Properties:
+        PackageType: Image
+        Description: A simple example includes a HTTP delete method to delete one item.
+        Events:
+          Api:
+            Type: Api
+            Properties:
+              Path: /{id}
+              Method: DELETE
+      Metadata:
+        DockerTag: nodejs18.x-v1
+        DockerContext: ../src/hello-world
+        Dockerfile: Dockerfile
+        BuildMethod: esbuild
+        BuildProperties:
+          Minify: true
+          Target: "es2020"
+          Sourcemap: true
+          EntryPoints:
+            - app.ts
+
+    # Maybe there is a problem if that that stack withHelloWorldApiMapping is deployed at first time,
+    # because api gateway in Stage is not exist during deployment
+    # Solution: Remove firstly it. After Deployment back
+    HelloWorldApiMapping:
+      DependsOn:
+        - getAllItemsFunction
+      Type: AWS::ApiGatewayV2::ApiMapping
+      Properties:
+        DomainName: !Ref DomainName
+        ApiMappingKey: !Sub "${ServiceName}/${Version}/${Path}"
+        ApiId: !Ref ServerlessRestApi
+        Stage: !Ref ServerlessRestApiProdStage
+
+
+Outputs:
+  getAllItemsFunction:
+    Description: "get all items Lambda Function ARN"
+    Value: !GetAtt getAllItemsFunction.Arn
+  getByIdFunction:
+    Description: "get item by id Lambda Function ARN"
+    Value: !GetAtt getByIdFunction.Arn
+  putItemFunction:
+    Description: "put item Lambda Function ARN"
+    Value: !GetAtt putItemFunction.Arn
+  deleteItemFunction:
+    Description: "delete item Lambda Function ARN"
+    Value: !GetAtt deleteItemFunction.Arn

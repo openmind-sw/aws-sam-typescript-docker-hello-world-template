@@ -1,0 +1,22 @@
+version = 0.1
+[default]
+[default.deploy]
+[default.deploy.parameters]
+stack_name = "helloWorldService-api"
+s3_bucket = "aws-sam-cli-managed-default-samclisourcebucket-c5h6k3kd64ox"
+s3_prefix = "helloWorldService-api"
+region = "eu-central-1"
+confirm_changeset = true
+capabilities = "CAPABILITY_IAM CAPABILITY_AUTO_EXPAND"
+parameter_overrides = "StageName=\"prod\" ServiceName=\"HelloWorldService\" DomainName=\"api.example.de\" Version=\"v1\""
+
+[dev]
+[dev.deploy]
+[dev.deploy.parameters]
+stack_name = "dev-helloWorldService-api"
+s3_bucket = "aws-sam-cli-managed-default-samclisourcebucket-c5h6k3kd64ox"
+s3_prefix = "dev-helloWorldService-api"
+region = "eu-central-1"
+confirm_changeset = false
+capabilities = "CAPABILITY_IAM CAPABILITY_AUTO_EXPAND"
+parameter_overrides = "StageName=\"dev\" ServiceName=\"HelloWorldService\" DomainName=\"api.test.example.de\" Version=\"v1\""

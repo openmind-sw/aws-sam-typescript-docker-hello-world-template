@@ -2,12 +2,11 @@
 
 This project contains source code and supporting files for a serverless application that you can deploy with the SAM CLI. It includes the following files and folders.
 
-- hello-world - Code for the application's Lambda function and Project Dockerfile.
+- src/hello-world - Code for the application's Lambda function and Project Dockerfile.
 - events - Invocation events that you can use to invoke the function.
-- hello-world/tests - Unit tests for the application code.
-- template.yaml - A template that defines the application's AWS resources.
+- cf-templates/services.yaml - A template that defines the application's AWS resources.
 
-The application uses several AWS resources, including Lambda functions and an API Gateway API. These resources are defined in the `template.yaml` file in this project. You can update the template to add AWS resources through the same deployment process that updates your application code.
+The application uses several AWS resources, including Lambda functions and an API Gateway API with API-Mapping. These resources are defined in the `services.yaml` file in this project. You can update the template to add AWS resources through the same deployment process that updates your application code.
 
 ## Deploy the sample application
 
@@ -20,13 +19,13 @@ To use the SAM CLI, you need the following tools.
 
 You may need the following for local testing.
 
-* Node.js - [Install Node.js 16](https://nodejs.org/en/), including the NPM package management tool.
+* Node.js - [Install Node.js 18](https://nodejs.org/en/), including the NPM package management tool.
 
 To build and deploy your application for the first time, run the following in your shell:
 
 ```bash
-sam build
-sam deploy --guided
+sam build -t cf-templates/services.yaml
+sam deploy --config-env (dev|prod) --guided
 ```
 
 The first command will build a docker image from a Dockerfile and then the source of your application inside the Docker image. The second command will package and deploy your application to AWS, with a series of prompts:
@@ -34,20 +33,20 @@ The first command will build a docker image from a Dockerfile and then the sourc
 * **Stack Name**: The name of the stack to deploy to CloudFormation. This should be unique to your account and region, and a good starting point would be something matching your project name.
 * **AWS Region**: The AWS region you want to deploy your app to.
 * **Confirm changes before deploy**: If set to yes, any change sets will be shown to you before execution for manual review. If set to no, the AWS SAM CLI will automatically deploy application changes.
-* **Allow SAM CLI IAM role creation**: Many AWS SAM templates, including this example, create AWS IAM roles required for the AWS Lambda function(s) included to access AWS services. By default, these are scoped down to minimum required permissions. To deploy an AWS CloudFormation stack which creates or modifies IAM roles, the `CAPABILITY_IAM` value for `capabilities` must be provided. If permission isn't provided through this prompt, to deploy this example you must explicitly pass `--capabilities CAPABILITY_IAM` to the `sam deploy` command.
+* **Allow SAM CLI IAM role creation**: Many AWS SAM templates, including this example, create AWS IAM roles required for the AWS Lambda function(s) included to access AWS services. By default, these are scoped down to minimum required permissions. To deploy an AWS CloudFormation stack which creates or modifies IAM roles, the `CAPABILITY_IAM CAPABILITY_AUTO_EXPAND` value for `capabilities` must be provided. If permission isn't provided through this prompt, to deploy this example you must explicitly pass `--capabilities CAPABILITY_IAM CAPABILITY_AUTO_EXPAND` to the `sam deploy` command.
 * **Save arguments to samconfig.toml**: If set to yes, your choices will be saved to a configuration file inside the project, so that in the future you can just re-run `sam deploy` without parameters to deploy changes to your application.
 
 You can find your API Gateway Endpoint URL in the output values displayed after deployment.
 
 ## Use the SAM CLI to build and test locally
 
-Build your application with the `sam build` command.
+Build your application with the `sam build -t cf-templates/services.yaml` command.
 
 ```bash
-test-app$ sam build
+test-app$ sam build -t cf-templates/services.yaml
 ```
 
-The SAM CLI builds a docker image from a Dockerfile and then installs dependencies defined in `hello-world/package.json` inside the docker image. The processed template file is saved in the `.aws-sam/build` folder.
+The SAM CLI builds a docker image from a Dockerfile and then installs dependencies defined in `src/hello-world/package.json` inside the docker image. The processed template file is saved in the `.aws-sam/build` folder.
 * **Note**: The Dockerfile included in this sample application uses `npm install` by default. If you are building your code for production, you can modify it to use `npm ci` instead.
 
 Test a single function by invoking it directly with a test event. An event is a JSON document that represents the input that the function receives from the event source. Test events are included in the `events` folder in this project.
@@ -86,17 +85,17 @@ To simplify troubleshooting, SAM CLI has a command called `sam logs`. `sam logs`
 `NOTE`: This command works for all AWS Lambda functions; not just the ones you deploy using SAM.
 
 ```bash
-test-app$ sam logs -n HelloWorldFunction --stack-name test-app --tail
+test-app$ sam logs -n HelloWorldFunction --stack-name helloWorldService-api --tail
 ```
 
 You can find more information and examples about filtering Lambda function logs in the [SAM CLI Documentation](https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/serverless-sam-cli-logging.html).
 
-## Unit tests
+## Unit tests (no checked!!!)
 
-Tests are defined in the `hello-world/tests` folder in this project. Use NPM to install the [Mocha test framework](https://mochajs.org/) and run unit tests from your local machine.
+Tests are defined in the `src/hello-world/tests` folder in this project. Use NPM to install the [Mocha test framework](https://mochajs.org/) and run unit tests from your local machine.
 
 ```bash
-test-app$ cd hello-world
+test-app$ cd src/hello-world
 hello-world$ npm install
 hello-world$ npm run test
 ```
