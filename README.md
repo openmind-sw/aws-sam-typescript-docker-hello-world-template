@@ -25,7 +25,7 @@ To build and deploy your application for the first time, run the following in yo
 
 ```bash
 sam build -t cf-templates/services.yaml
-sam deploy --config-env (dev|prod) --guided
+sam deploy --config-env (dev|default) --guided
 ```
 
 The first command will build a docker image from a Dockerfile and then the source of your application inside the Docker image. The second command will package and deploy your application to AWS, with a series of prompts:
