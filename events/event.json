@@ -1,6 +1,6 @@
 {
   "body": "{\"message\": \"hello world\"}",
-  "resource": "/{proxy+}",
+  "resource": "/",
   "path": "/path/to/resource",
   "httpMethod": "POST",
   "isBase64Encoded": false,
